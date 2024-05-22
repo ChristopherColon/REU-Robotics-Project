@@ -23,11 +23,13 @@ int lastError = 0;
 
 // This is the maximum speed the motors will be allowed to turn.
 // (400 lets the motors go at top speed; decrease to impose a speed limit)
-const int MAX_SPEED = 400;
-
+const int MAX_SPEED = 100;
 
 void setup()
 {
+  // Initialize serial communication
+  Serial.begin(9600);
+
   // Play a little welcome song
   buzzer.play(">g32>>c32");
 
@@ -83,6 +85,19 @@ void loop()
   // Our "error" is how far we are away from the center of the line, which
   // corresponds to position 2500.
   int error = position - 2500;
+
+  // Determine if we are on the line or off the line
+  bool onLine = (sensors[0] > 200 || sensors[1] > 200 || sensors[2] > 200 || sensors[3] > 200 || sensors[4] > 200 || sensors[5] > 200);
+
+  // Send '1' if on the line, '0' if off the line
+  if (onLine)
+  {
+    Serial.println('1');
+  }
+  else
+  {
+    Serial.println('0');
+  }
 
   // Get motor speed difference using proportional and derivative PID terms
   // (the integral term is generally not very useful for line following).
