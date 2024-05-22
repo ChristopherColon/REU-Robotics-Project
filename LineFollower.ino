@@ -25,6 +25,8 @@ int lastError = 0;
 // (400 lets the motors go at top speed; decrease to impose a speed limit)
 const int MAX_SPEED = 100;
 
+unsigned long previousTime = 0; // Variable to track previous time
+
 void setup()
 {
   // Initialize serial communication
@@ -89,16 +91,20 @@ void loop()
   // Determine if we are on the line or off the line
   bool onLine = (sensors[0] > 200 || sensors[1] > 200 || sensors[2] > 200 || sensors[3] > 200 || sensors[4] > 200 || sensors[5] > 200);
 
-  // Send '1' if on the line, '0' if off the line
-  if (onLine)
-  {
-    Serial.println('1');
-  }
-  else
-  {
-    Serial.println('0');
-  }
+// Get current time in seconds
+  unsigned long currentTime = millis() / 1000;
 
+  // Send timestamp and status over serial every 1 second
+  if (currentTime - previousTime >= 1) {
+    previousTime = currentTime; // Update previous time
+    if (onLine) {
+      Serial.println(currentTime); // Send timestamp
+      Serial.println("1"); // Send status '1' for on the line
+    } else {
+      Serial.println(currentTime); // Send timestamp
+      Serial.println("0"); // Send status '0' for off the line
+    }
+  }
   // Get motor speed difference using proportional and derivative PID terms
   // (the integral term is generally not very useful for line following).
   // Here we are using a proportional constant of 1/4 and a derivative
