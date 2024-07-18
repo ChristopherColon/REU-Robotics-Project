@@ -14,7 +14,7 @@ const int MAX_SPEED = 100;
 unsigned long previousTime = 0; // Variable to track previous time
 
 #define LED 13
-#define QTR_THRESHOLD 1500 // Threshold for border detection
+#define QTR_THRESHOLD 800 // Threshold for border detection
 
 // Variables for Data Streamer
 int exampleVariable = 0;
