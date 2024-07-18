@@ -136,15 +136,15 @@ void loop() {
   bool leftBorderClose = sensors[0] < QTR_THRESHOLD && sensors[1] < QTR_THRESHOLD;
   bool rightBorderClose = sensors[4] < QTR_THRESHOLD && sensors[5] < QTR_THRESHOLD;
 
-  String leftBorderStatus = leftBorderClose ? "close" : "safe";
-  String rightBorderStatus = rightBorderClose ? "close" : "safe";
+  String leftBorderStatus = leftBorderClose ? "danger" : "safe";
+  String rightBorderStatus = rightBorderClose ? "danger" : "safe";
 
   // Send timestamp, status, direction, and border distance over serial every 1 second
   if (currentTime - previousTime >= 1) {
     previousTime = currentTime; // Update previous time
     Serial.print(currentTime); // Send timestamp
     Serial.print(",");
-    Serial.print(onLine ? "1" : "0"); // Send status '1' for on the line and '0' for off the line
+    Serial.print(onLine ? "onLine" : "offLine"); // Send status '1' for on the line and '0' for off the line
     Serial.print(",");
     Serial.print(direction); // Send direction
     Serial.print(",");
