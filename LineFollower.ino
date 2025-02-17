@@ -9,9 +9,15 @@ int lastError = 0;
 
 // This is the maximum speed the motors will be allowed to turn.
 // (100 lets the motors go at a controlled speed; increase to go faster)
-const int MAX_SPEED = 100;
+const int MAX_SPEED = 120;
 
 unsigned long previousTime = 0; // Variable to track previous time
+
+// Variable to store the last time the LED was toggled
+unsigned long previousMillis = 0;
+
+// Interval for the timer (1 second = 1000 milliseconds)
+const long interval = 1000;
 
 #define LED 13
 #define QTR_THRESHOLD 800 // Threshold for border detection
@@ -28,6 +34,7 @@ unsigned long serialPreviousTime;
 char* arr[kNumberOfChannelsFromExcel];
 
 void setup() {
+
   // Initialize serial communication
   Serial.begin(9600);
 
@@ -88,8 +95,8 @@ void loop() {
   // Determine if we are on the line or off the line
   bool onLine = (sensors[1] > 200 || sensors[2] > 200 || sensors[3] > 200 || sensors[4] > 200);
 
-  // Get current time in seconds
-  unsigned long currentTime = millis() / 1000;
+  // Get the current time for timing logic
+  unsigned long currentTime = millis();
 
   // Get motor speed difference using proportional and derivative PID terms
   // (the integral term is generally not very useful for line following).
@@ -136,11 +143,14 @@ void loop() {
   bool leftBorderClose = sensors[0] < QTR_THRESHOLD && sensors[1] < QTR_THRESHOLD;
   bool rightBorderClose = sensors[4] < QTR_THRESHOLD && sensors[5] < QTR_THRESHOLD;
 
-  String leftBorderStatus = leftBorderClose ? "danger" : "safe";
-  String rightBorderStatus = rightBorderClose ? "danger" : "safe";
+  String leftBorderStatus = leftBorderClose ? "safe" : "danger";
+  String rightBorderStatus = rightBorderClose ? "safe" : "danger";
 
-  // Send timestamp, status, direction, and border distance over serial every 1 second
-  if (currentTime - previousTime >= 1) {
+  // Calculate distance from center line (error) in centimeters or any preferred unit
+  float distanceFromCenterLine = error * 0.000356; // Assuming each unit of error corresponds to 0.1 cm
+
+  // Send timestamp, status, direction, border distance, and distance from center line over serial every 1 second
+  if (currentTime - previousTime >= 100) {
     previousTime = currentTime; // Update previous time
     Serial.print(currentTime); // Send timestamp
     Serial.print(",");
@@ -151,8 +161,8 @@ void loop() {
     Serial.print(leftBorderStatus); // Send left border status
     Serial.print(",");
     Serial.print(rightBorderStatus); // Send right border status
-    // Serial.print(",");
-    // Serial.print(exampleVariable); // Send example variable
+    Serial.print(",");
+    Serial.print(distanceFromCenterLine); // Send distance from center line (if neg then left side of line | pos then right side | 0 then exactly on line)
     Serial.println(); // New line for each set of data
   }
 
